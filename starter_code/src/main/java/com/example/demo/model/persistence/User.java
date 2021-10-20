@@ -30,6 +30,15 @@ public class User {
 	@JsonProperty
 	private String password;
 
+
+	@OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cart_id", referencedColumnName = "id")
+	@JsonIgnore
+    private Cart cart;
+
+
+	/*		*/
+
 	public String getPassword() {
 		return password;
 	}
@@ -37,12 +46,6 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_id", referencedColumnName = "id")
-	@JsonIgnore
-    private Cart cart;
-	
 	public Cart getCart() {
 		return cart;
 	}

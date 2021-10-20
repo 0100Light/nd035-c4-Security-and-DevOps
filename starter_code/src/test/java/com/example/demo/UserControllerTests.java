@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.controllers.UserController;
 import com.example.demo.model.persistence.User;
 import com.example.demo.model.requests.CreateUserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,46 +18,26 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-@SpringBootTest(classes = SareetaApplication.class,
-webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-properties = "server_port=0")
+@SpringBootTest(classes = SareetaApplication.class)
+//webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+//properties = "server_port=0")
 public class UserControllerTests extends AbstractTestNGSpringContextTests {
-
-    // 不能在constructor取得，因為PORT還沒有INIT好
-    // 放在BeforeClass or BeforeMethod比較妥當的
-    @LocalServerPort
-    private int port;
-
-    private RestTemplate restTemplate;
-
-    String USER_CONTROLLER_URL = "";
-
     @Autowired
-    private ServletWebServerApplicationContext webServerAppCtxt;
-
-    @Test
-    public void given0AsServerPort_whenReadWebAppCtxt_thenGetThePort() {
-        int port = webServerAppCtxt.getWebServer().getPort();
-        Assert.assertTrue(port > 1023);
-    }
-
-    public UserControllerTests() {
-    }
-
-    @BeforeClass
-    public void beforeMethod(){
-        System.out.println("local port: " + port);
-        restTemplate = new RestTemplate();
-        int port = webServerAppCtxt.getWebServer().getPort();
-        USER_CONTROLLER_URL = "http://localhost:" + port + "/api/user/";
-    }
+    UserController userController;
 
     @Test
     public void canCreateUser(){
-        String url = USER_CONTROLLER_URL + "create";
         CreateUserRequest req = new CreateUserRequest();
         req.setUsername("canCreateUserTest");
-        ResponseEntity<User> rest = restTemplate.postForEntity(url,req, User.class);
-        Assert.assertEquals(rest.getStatusCodeValue(), 200);
+        req.setPassword("1234");
+        req.setConfirmPassword("1234");
+        ResponseEntity<User> res = userController.createUser(req);
+        Assert.assertTrue(res.getBody().getId() > 0);
+        Assert.assertTrue(res.getStatusCode().is2xxSuccessful());
+    }
+
+    @Test
+    public void canDetectWrongConfirmPasswordWhenCreatingUser(){
+
     }
 }
